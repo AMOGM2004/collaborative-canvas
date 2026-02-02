@@ -104,6 +104,7 @@ node -v
 npm -v
 ```
 ✔ If version numbers appear (example: v18.17.0), the installation was successful.
+
 ❌ If not, restart your system and try again.
 
 ---
