@@ -66,8 +66,6 @@ collaborative-canvas/
 
 Follow the steps below to run the project locally on your computer.
 
----
-
 ## ✅ Prerequisites
 
 ### 📦 Step 1: Install Node.js (Very Important)
@@ -115,16 +113,26 @@ npm -v
 ## ⚙️ Installation
 
 ### 1. Clone the Repository
-Open the terminal :  git clone <repository-url>
-cd collaborative-canvas
 
+Open your terminal and run the following commands:
+```bash
+git clone https://github.com/AMOGM2004/Collaborative-Canvas.git
+cd collaborative-canvas
+```
 ### 2. Install Dependencies
+
+Run the following command in your terminal to install all required packages:
+
+```bash
 npm install
+```
 
 ### 3. Start the Server
+Start the application with:
 npm start
 
-### 4. (Optional) Development Mode (Auto Restart)
+### 4. (Optional) Development Mode (Auto Restart) :
+``` For development with automatic server restart on file changes, run:```
 npm run dev
 
 ### 5. 🚀 Open in Browser
