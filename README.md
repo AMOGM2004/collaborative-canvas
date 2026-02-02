@@ -60,7 +60,7 @@ collaborative-canvas/
 │
 ├── package.json              # Project dependencies & scripts
 ├── README.md                 # Project documentation
-└── ARCHITECTURE.md           # System architecture overview
+
 ```
 
 ---
