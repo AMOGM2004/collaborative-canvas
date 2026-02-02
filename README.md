@@ -33,3 +33,37 @@ npm install
 
 # Start development server
 npm run dev
+
+
+
+🎯 How to Test with Multiple Users
+Open the live demo in Chrome
+
+Open same URL in Firefox (or another browser)
+
+Open same URL in a private/incognito window
+
+Start drawing in one window - you'll see it appear in others!
+
+🛠️ Technologies Used
+Frontend: HTML5 Canvas, Vanilla JavaScript, CSS3
+
+Backend: Node.js, Express.js
+
+Real-time: Socket.io (WebSockets)
+
+Deployment: Vercel
+
+📁 Project Structure
+text
+collaborative-canvas/
+├── client/           # Frontend files
+│   ├── index.html   # Main HTML file
+│   ├── style.css    # Styles
+│   ├── app.js       # Main application logic
+│   └── websocket-client.js # WebSocket client
+├── server/          # Backend files
+│   ├── server.js    # Express + Socket.io server
+│   └── drawing-state.js # Drawing state management
+├── package.json     # Dependencies
+└── README.md        # Documentation
