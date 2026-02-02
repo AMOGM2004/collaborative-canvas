@@ -110,11 +110,12 @@ npm -v
 ---
 
 ## ⚙️ Installation
-
+## 1️⃣ Get the Project Code
 #### Option 1 : 📥 Download the Project
 1. Click the **Code** button on this repository
 2. Select **Download ZIP**
 3. Extract the ZIP file
+After extracting, open the folder named `collaborative-canvas`.
 
 #### Option 2 :  Clone the Repository
 
@@ -123,6 +124,7 @@ Open your terminal and run the following commands:
 git clone https://github.com/AMOGM2004/Collaborative-Canvas.git
 cd collaborative-canvas
 ```
+
 ### 2. Install Dependencies
 
 Run the following command in your terminal to install all required packages:
