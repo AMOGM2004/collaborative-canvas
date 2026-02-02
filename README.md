@@ -9,8 +9,9 @@ A real-time collaborative drawing application where multiple users can draw simu
 - Undo/Redo functionality
 - Online user indicators
 - Mobile touch support
-- 
+ 
 ---
+
 ## User Experience
 - User join/leave notifications
 - Connection status indicator
@@ -26,10 +27,12 @@ A real-time collaborative drawing application where multiple users can draw simu
 - HTML5 Canvas
 - Vanilla JavaScript
 - CSS3
+  
 ## Backend
 - Node.js
 - Express.js
 - Socket.io
+  
 ## Real-Time Communication
 - WebSockets via Socket.io
 
