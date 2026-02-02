@@ -110,7 +110,7 @@ npm -v
 ---
 
 ## ⚙️ Installation
-## 1️⃣ Get the Project Code
+### 1️⃣ Get the Project Code
 #### Option 1 : 📥 Download the Project
 1. Click the **Code** button on this repository
 2. Select **Download ZIP**
@@ -125,7 +125,7 @@ git clone https://github.com/AMOGM2004/Collaborative-Canvas.git
 cd collaborative-canvas
 ```
 
-### 2. Install Dependencies
+### 2️⃣ Install Dependencies
 
 Run the following command in your terminal to install all required packages:
 
@@ -133,19 +133,19 @@ Run the following command in your terminal to install all required packages:
 npm install
 ```
 
-### 3. Start the Server
+### 3️⃣ Start the Server
 Start the application with:
 ```bash
 npm start
 ```
 
-### 4. (Optional) Development Mode (Auto Restart) :
+### 4️⃣ (Optional) Development Mode (Auto Restart) :
 For development with automatic server restart on file changes, run:
 ```bash
 npm run dev
 ```
 
-### 5. 🚀 Open in Browser
+### 5️⃣ 🚀 Open in Browser
 Open your browser and navigate to: http://localhost:3000
 
 ---
