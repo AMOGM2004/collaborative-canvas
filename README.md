@@ -62,6 +62,8 @@ collaborative-canvas/
 ├── README.md # Project documentation
 └── ARCHITECTURE.md # System architecture overview
 ```
+
+---
 ## 🚀 Getting Started
 
 Follow the steps below to run the project locally on your computer.
@@ -83,7 +85,6 @@ This project uses **Node.js**, which allows JavaScript to run outside the browse
 ⚠️ **Important:**  
 Do **NOT** change any default settings during installation.
 
----
 
 ### ✅ Step 2: Verify Installation
 
@@ -129,11 +130,15 @@ npm install
 
 ### 3. Start the Server
 Start the application with:
+```bash
 npm start
+```
 
 ### 4. (Optional) Development Mode (Auto Restart) :
-``` For development with automatic server restart on file changes, run:```
+For development with automatic server restart on file changes, run:
+```bash
 npm run dev
+```
 
 ### 5. 🚀 Open in Browser
 Open your browser and navigate to: http://localhost:3000
