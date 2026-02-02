@@ -145,7 +145,7 @@ For development with automatic server restart on file changes, run:
 npm run dev
 ```
 
-### 5️⃣ 🚀 Open in Browser
+### 5️⃣  Open in Browser
 Open your browser and navigate to: http://localhost:3000
 
 ---
