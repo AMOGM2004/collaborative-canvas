@@ -11,7 +11,7 @@ A real-time collaborative drawing application where multiple users can draw simu
 - Mobile touch support
 - 
 ---
-##User Experience
+## User Experience
 - User join/leave notifications
 - Connection status indicator
 - Responsive layout
@@ -26,12 +26,30 @@ A real-time collaborative drawing application where multiple users can draw simu
 - HTML5 Canvas
 - Vanilla JavaScript
 - CSS3
-Backend
-Node.js
-Express.js
-Socket.io
-Real-Time Communication
-WebSockets via Socket.io
+## Backend
+- Node.js
+- Express.js
+- Socket.io
+## Real-Time Communication
+- WebSockets via Socket.io
+
+---
+
+## 📁 Project Structure
+collaborative-canvas/
+├── client/                    # Frontend files
+│   ├── index.html             # Main HTML file
+│   ├── style.css              # Styles
+│   ├── app.js                 # Main application logic
+│   └── websocket-client.js    # WebSocket client handling
+├── server/                    # Backend files
+│   ├── server.js              # Express + Socket.io server
+│   └── drawing-state.js       # Canvas state management
+├── package.json               # Project dependencies
+├── README.md                  # Project documentation
+└── ARCHITECTURE.md            # System architecture overview
+
+---
 
 ## Setup Instructions
 
