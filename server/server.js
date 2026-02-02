@@ -167,93 +167,44 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
+const io = socketIO(server);
 
-// For Vercel, use correct CORS settings
-const io = socketIO(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        transports: ['websocket', 'polling'],
-        credentials: true
-    }
-});
-
-// Serve static files from client folder
-app.use(express.static(path.join(__dirname, '../client')));
-
-// Serve index.html for all routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/index.html'));
-});
+// Serve static files
+app.use(express.static('client'));
 
 // Store connected users
 const users = new Map();
 
 io.on('connection', (socket) => {
-    console.log('New user connected:', socket.id);
+    console.log('User connected:', socket.id);
     
-    // Assign random color to user
     const userColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-    users.set(socket.id, {
-        id: socket.id,
-        color: userColor,
-        cursor: { x: 0, y: 0 }
-    });
+    users.set(socket.id, { id: socket.id, color: userColor });
     
-    // Send current users to the new user
     socket.emit('init', { 
         userId: socket.id, 
         color: userColor,
         users: Array.from(users.values())
     });
     
-    // Notify others about new user
     socket.broadcast.emit('user-joined', users.get(socket.id));
     
-    // Handle user disconnect
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
         users.delete(socket.id);
-        io.emit('user-left', socket.id);
+        socket.broadcast.emit('user-left', socket.id);
     });
     
-    // Handle drawing events
     socket.on('draw', (data) => {
-        // Broadcast to all other users
-        socket.broadcast.emit('draw', { 
-            ...data, 
-            userId: socket.id 
-        });
+        socket.broadcast.emit('draw', { ...data, userId: socket.id });
     });
     
-    // Handle cursor movement
     socket.on('cursor-move', (position) => {
-        if (users.has(socket.id)) {
-            users.get(socket.id).cursor = position;
-            socket.broadcast.emit('cursor-update', {
-                userId: socket.id,
-                cursor: position
-            });
-        }
+        socket.broadcast.emit('cursor-update', {
+            userId: socket.id,
+            cursor: position
+        });
     });
 });
 
-// For Vercel deployment
-const PORT = process.env.PORT || 3000;
-
-// Only listen if not in Vercel serverless environment
-if (process.env.VERCEL !== '1') {
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
 // Export for Vercel
-module.exports = (req, res) => {
-    // Handle HTTP requests
-    app(req, res);
-};
-
-// Also export server for Socket.io
-module.exports.server = server;
-module.exports.io = io;
+module.exports = app;
