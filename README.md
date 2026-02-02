@@ -36,26 +36,22 @@ A real-time collaborative drawing application where multiple users can draw simu
 ## Real-Time Communication
 - WebSockets via Socket.io
 
----
 
-## 📁 Project Structure
+
 collaborative-canvas/
 ├── client/
-│   ├── index.html          # Main HTML file
-│   ├── style.css           # Application styles
-│   ├── app.js              # Canvas and drawing logic
-│   └── websocket-client.js # Socket.io client handling
+│ ├── index.html # Main HTML file
+│ ├── style.css # Application styles
+│ ├── app.js # Canvas and drawing logic
+│ └── websocket-client.js # Socket.io client handling
 │
 ├── server/
-│   ├── server.js           # Express + Socket.io server
-│   └── drawing-state.js    # Shared canvas state logic
+│ ├── server.js # Express + Socket.io server
+│ └── drawing-state.js # Shared canvas state logic
 │
-├── package.json            # Project dependencies & scripts
-├── README.md               # Project documentation
-└── ARCHITECTURE.md         # System architecture overview
-
-
----
+├── package.json # Project dependencies & scripts
+├── README.md # Project documentation
+└── ARCHITECTURE.md # System architecture overview
 
 🚀 Getting Started
 Follow these steps to run the project locally.
