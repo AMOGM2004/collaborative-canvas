@@ -98,9 +98,6 @@ After installing Node.js, make sure it was installed correctly.
 #### 🔹 On macOS / Linux
 
 1. Open **Terminal**
-
----
-
 Now type the following commands **one by one**:
 ```bash
 node -v
