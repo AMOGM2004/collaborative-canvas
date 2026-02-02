@@ -2,6 +2,8 @@
 
 A real-time collaborative drawing application where multiple users can draw simultaneously on the same canvas.
 
+---
+
 ## Features
 - Real-time drawing synchronization
 - Multiple drawing tools (brush, eraser)
@@ -37,7 +39,7 @@ A real-time collaborative drawing application where multiple users can draw simu
 - WebSockets via Socket.io
 
 
-
+'''
 collaborative-canvas/
 ├── client/
 │ ├── index.html # Main HTML file
@@ -52,6 +54,7 @@ collaborative-canvas/
 ├── package.json # Project dependencies & scripts
 ├── README.md # Project documentation
 └── ARCHITECTURE.md # System architecture overview
+'''
 
 🚀 Getting Started
 Follow these steps to run the project locally.
