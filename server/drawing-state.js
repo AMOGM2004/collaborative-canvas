@@ -1,137 +1,161 @@
 class DrawingState {
     constructor() {
-        this.strokes = []; // All strokes from all users
-        this.users = new Map(); // socket.id -> user info
-        this.userColors = {}; // Track colors assigned to users
-        this.availableColors = [
-            '#FF3B30', // Red
-            '#4CD964', // Green
-            '#007AFF', // Blue
-            '#FF9500', // Orange
-            '#5856D6', // Purple
-            '#FF2D55', // Pink
-            '#5AC8FA', // Light Blue
-            '#FFCC00'  // Yellow
-        ];
+        this.strokes = [];
+        this.users = new Map();
+        this.userColors = new Map();
+        this.cursors = new Map();
+        this.undoStack = [];
+        this.redoStack = [];
     }
-
-    // Add a new user and assign them a color
-    addUser(socketId, userInfo = {}) {
-        const color = this.assignColor();
+    
+    // User management
+    addUser(userId, userData = {}) {
+        // Generate random color for user
+        const color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        
         const user = {
-            id: socketId,
+            id: userId,
             color: color,
-            cursor: { x: 0, y: 0, visible: false },
-            ...userInfo
+            cursor: { x: 0, y: 0 },
+            joinedAt: new Date().toISOString(),
+            ...userData
         };
         
-        this.users.set(socketId, user);
-        this.userColors[socketId] = color;
+        this.users.set(userId, user);
+        this.userColors.set(userId, color);
+        this.cursors.set(userId, { x: 0, y: 0 });
         
+        console.log(`User ${userId} added with color ${color}`);
         return user;
     }
-
-    // Remove a user
-    removeUser(socketId) {
-        this.users.delete(socketId);
-        delete this.userColors[socketId];
+    
+    removeUser(userId) {
+        this.users.delete(userId);
+        this.userColors.delete(userId);
+        this.cursors.delete(userId);
+        console.log(`User ${userId} removed`);
     }
-
-    // Assign a unique color to a user
-    assignColor() {
-        const usedColors = Object.values(this.userColors);
-        
-        // Find first available color
-        for (const color of this.availableColors) {
-            if (!usedColors.includes(color)) {
-                return color;
-            }
+    
+    changeUserColor(userId, color) {
+        if (this.users.has(userId)) {
+            this.users.get(userId).color = color;
+            this.userColors.set(userId, color);
+            console.log(`User ${userId} color changed to ${color}`);
         }
-        
-        // If all colors are used, generate random one
-        return `#${Math.floor(Math.random()*16777215).toString(16)}`;
     }
-
-    // Add a drawing stroke
-    addStroke(stroke) {
-        // Add timestamp if not present
-        if (!stroke.timestamp) {
-            stroke.timestamp = Date.now();
+    
+    updateCursor(userId, cursorData) {
+        if (this.users.has(userId)) {
+            this.users.get(userId).cursor = cursorData;
+            this.cursors.set(userId, cursorData);
         }
+    }
+    
+    getUsers(excludeUserId = null) {
+        const users = Array.from(this.users.values());
+        if (excludeUserId) {
+            return users.filter(user => user.id !== excludeUserId);
+        }
+        return users;
+    }
+    
+    // Stroke management
+    addStroke(strokeData) {
+        const stroke = {
+            id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            userId: strokeData.userId,
+            points: strokeData.points || [{ x: strokeData.x, y: strokeData.y }],
+            color: strokeData.color || this.userColors.get(strokeData.userId) || '#000000',
+            size: strokeData.size || 5,
+            tool: strokeData.tool || 'brush',
+            timestamp: strokeData.timestamp || Date.now(),
+            type: strokeData.type || 'stroke'
+        };
         
-        // Add to strokes array
         this.strokes.push(stroke);
-        
-        // Keep only last 1000 strokes to prevent memory issues
-        if (this.strokes.length > 1000) {
-            this.strokes = this.strokes.slice(-500);
-        }
+        console.log(`Stroke added: ${stroke.id} by ${stroke.userId}`);
         
         return stroke;
     }
-
-    // Update user cursor position
-    updateCursor(socketId, cursorData) {
-        const user = this.users.get(socketId);
-        if (user) {
-            user.cursor = {
-                ...user.cursor,
-                ...cursorData,
-                lastUpdate: Date.now()
-            };
-        }
+    
+    getStrokes() {
+        return this.strokes.slice(); // Return copy
     }
-
-    // Get all strokes (with optional filtering)
-    getStrokes(sinceTimestamp = 0) {
-        return this.strokes.filter(stroke => stroke.timestamp > sinceTimestamp);
-    }
-
-    // Get all users (excluding one if specified)
-    getUsers(excludeSocketId = null) {
-        const users = {};
-        
-        this.users.forEach((user, socketId) => {
-            if (socketId !== excludeSocketId) {
-                users[socketId] = { ...user };
-            }
-        });
-        
-        return users;
-    }
-
-    // Clear all strokes
+    
     clearCanvas() {
         this.strokes = [];
+        console.log('Canvas cleared');
     }
-
-    // Get user by socket ID
-    getUser(socketId) {
-        return this.users.get(socketId);
-    }
-
-    // Change user color
-    changeUserColor(socketId, color) {
-        const user = this.users.get(socketId);
-        if (user) {
-            user.color = color;
-            this.userColors[socketId] = color;
-            
-            // Update all strokes by this user with new color
-            this.strokes.forEach(stroke => {
-                if (stroke.userId === socketId) {
-                    stroke.color = color;
-                }
-            });
+    
+    undoLastStroke(userId) {
+        if (this.strokes.length > 0) {
+            const lastStroke = this.strokes.pop();
+            this.undoStack.push(lastStroke);
+            console.log(`Undo: Stroke ${lastStroke.id} removed`);
+            return lastStroke;
         }
+        return null;
     }
-
-    // Get canvas snapshot
-    getSnapshot() {
+    
+    redoLastStroke() {
+        if (this.undoStack.length > 0) {
+            const stroke = this.undoStack.pop();
+            this.strokes.push(stroke);
+            console.log(`Redo: Stroke ${stroke.id} restored`);
+            return stroke;
+        }
+        return null;
+    }
+    
+    // Get cursor data
+    getCursor(userId) {
+        return this.cursors.get(userId) || { x: 0, y: 0 };
+    }
+    
+    // Get all cursors
+    getAllCursors(excludeUserId = null) {
+        const cursors = [];
+        this.cursors.forEach((cursor, userId) => {
+            if (!excludeUserId || userId !== excludeUserId) {
+                cursors.push({
+                    userId: userId,
+                    cursor: cursor,
+                    color: this.userColors.get(userId) || '#000000'
+                });
+            }
+        });
+        return cursors;
+    }
+    
+    // Statistics
+    getStats() {
         return {
-            strokes: this.strokes.slice(), // Return copy
-            users: this.getUsers()
+            totalUsers: this.users.size,
+            totalStrokes: this.strokes.length,
+            totalUndo: this.undoStack.length,
+            totalRedo: this.redoStack.length
         };
+    }
+    
+    // Export/Import (for persistence)
+    exportState() {
+        return {
+            strokes: this.strokes,
+            users: Array.from(this.users.values()),
+            cursors: Array.from(this.cursors.entries()),
+            timestamp: Date.now()
+        };
+    }
+    
+    importState(state) {
+        if (state.strokes) this.strokes = state.strokes;
+        if (state.users) {
+            this.users = new Map(state.users.map(user => [user.id, user]));
+        }
+        if (state.cursors) {
+            this.cursors = new Map(state.cursors);
+        }
+        console.log('State imported:', this.getStats());
     }
 }
 
