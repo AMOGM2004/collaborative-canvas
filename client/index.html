@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Drawing Canvas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-paint-brush"></i> Collaborative Canvas</h1>
+    <div class="user-info">
+        <span id="user-count">0 users online</span>
+        <div class="current-user">
+            <span class="user-color" id="my-color"></span>
+            <span>You</span>
+        </div>
+        <div class="connection-status connected" id="connection-status">
+            <i class="fas fa-circle"></i>
+            <span>Connected</span>
+        </div>
+    </div>
+        </header>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="tool-group">
+                    <h3><i class="fas fa-pencil-alt"></i> Tools</h3>
+                    <div class="tools">
+                        <button class="tool-btn active" data-tool="brush" title="Brush">
+                            <i class="fas fa-paint-brush"></i>
+                        </button>
+                        <button class="tool-btn" data-tool="eraser" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button class="tool-btn" data-tool="clear" title="Clear Canvas">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-group">
+                    <h3><i class="fas fa-palette"></i> Colors</h3>
+                    <div class="colors">
+                        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                        <div class="color-option" style="background-color: #FF3B30;" data-color="#FF3B30"></div>
+                        <div class="color-option" style="background-color: #4CD964;" data-color="#4CD964"></div>
+                        <div class="color-option" style="background-color: #007AFF;" data-color="#007AFF"></div>
+                        <div class="color-option" style="background-color: #FF9500;" data-color="#FF9500"></div>
+                        <div class="color-option" style="background-color: #5856D6;" data-color="#5856D6"></div>
+                    </div>
+                </div>
+
+                <div class="tool-group">
+                    <h3><i class="fas fa-brush"></i> Brush Size</h3>
+                    <input type="range" id="brush-size" min="1" max="50" value="5">
+                    <span id="brush-size-value">5px</span>
+                </div>
+
+                <div class="tool-group">
+                    <h3><i class="fas fa-history"></i> Actions</h3>
+                    <div class="actions">
+                        <button class="action-btn" id="undo-btn" title="Undo">
+                            <i class="fas fa-undo"></i> Undo
+                        </button>
+                        <button class="action-btn" id="redo-btn" title="Redo">
+                            <i class="fas fa-redo"></i> Redo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="online-users">
+                    <h3><i class="fas fa-users"></i> Online Users</h3>
+                    <ul id="users-list">
+                        <!-- Users will be added here dynamically -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="drawing-canvas"></canvas>
+                <div class="cursor-overlay" id="cursor-overlay"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Draw together in real-time! Open multiple tabs to test collaboration.</p>
+        </footer>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="websocket-client.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
