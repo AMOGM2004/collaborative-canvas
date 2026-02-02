@@ -39,7 +39,8 @@ A real-time collaborative drawing application where multiple users can draw simu
 - WebSockets via Socket.io
 
 
-'''
+## 📁 Project Structure
+```
 collaborative-canvas/
 ├── client/
 │ ├── index.html # Main HTML file
@@ -54,7 +55,7 @@ collaborative-canvas/
 ├── package.json # Project dependencies & scripts
 ├── README.md # Project documentation
 └── ARCHITECTURE.md # System architecture overview
-'''
+```
 
 🚀 Getting Started
 Follow these steps to run the project locally.
