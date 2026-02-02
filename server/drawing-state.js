@@ -1,167 +1,162 @@
-class WebSocketClient {
+class DrawingState {
     constructor() {
-        this.socket = null;
-        this.userId = null;
-        this.userColor = null;
-        this.isConnected = false;
-        this.onlineUsers = new Map();
-        this.remoteCursors = new Map();
-        
-        this.connect();
+        this.strokes = [];
+        this.users = new Map();
+        this.userColors = new Map();
+        this.cursors = new Map();
+        this.undoStack = [];
+        this.redoStack = [];
     }
     
-    connect() {
-        // Connect to server (works for both local and Vercel)
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host;
-        this.socket = io({ transports: ['websocket', 'polling'] });
+    // User management
+    addUser(userId, userData = {}) {
+        // Generate random color for user
+        const color = `hsl(${Math.random() * 360}, 70%, 60%)`;
         
-        // Connection events
-        this.socket.on('connect', () => {
-            console.log('✅ Connected to server');
-            this.isConnected = true;
-            this.updateConnectionStatus('connected');
-        });
+        const user = {
+            id: userId,
+            color: color,
+            cursor: { x: 0, y: 0 },
+            joinedAt: new Date().toISOString(),
+            ...userData
+        };
         
-        this.socket.on('disconnect', () => {
-            console.log('❌ Disconnected from server');
-            this.isConnected = false;
-            this.updateConnectionStatus('disconnected');
-        });
+        this.users.set(userId, user);
+        this.userColors.set(userId, color);
+        this.cursors.set(userId, { x: 0, y: 0 });
         
-        this.socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-            this.updateConnectionStatus('disconnected');
-        });
+        console.log(`User ${userId} added with color ${color}`);
+        return user;
+    }
+    
+    removeUser(userId) {
+        this.users.delete(userId);
+        this.userColors.delete(userId);
+        this.cursors.delete(userId);
+        console.log(`User ${userId} removed`);
+    }
+    
+    changeUserColor(userId, color) {
+        if (this.users.has(userId)) {
+            this.users.get(userId).color = color;
+            this.userColors.set(userId, color);
+            console.log(`User ${userId} color changed to ${color}`);
+        }
+    }
+    
+    updateCursor(userId, cursorData) {
+        if (this.users.has(userId)) {
+            this.users.get(userId).cursor = cursorData;
+            this.cursors.set(userId, cursorData);
+        }
+    }
+    
+    getUsers(excludeUserId = null) {
+        const users = Array.from(this.users.values());
+        if (excludeUserId) {
+            return users.filter(user => user.id !== excludeUserId);
+        }
+        return users;
+    }
+    
+    // Stroke management
+    addStroke(strokeData) {
+        const stroke = {
+            id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            userId: strokeData.userId,
+            points: strokeData.points || [{ x: strokeData.x, y: strokeData.y }],
+            color: strokeData.color || this.userColors.get(strokeData.userId) || '#000000',
+            size: strokeData.size || 5,
+            tool: strokeData.tool || 'brush',
+            timestamp: strokeData.timestamp || Date.now(),
+            type: strokeData.type || 'stroke'
+        };
         
-        // Server events (UPDATED EVENT NAMES)
-        this.socket.on('init', (data) => {
-            this.userId = data.userId;
-            this.userColor = data.color;
-            
-            // Initialize user list
-            data.users.forEach(user => {
-                this.onlineUsers.set(user.id, user);
-            });
-            
-            this.updateUserList();
-            console.log('🎨 Initialized with user ID:', this.userId);
-        });
+        this.strokes.push(stroke);
+        console.log(`Stroke added: ${stroke.id} by ${stroke.userId}`);
         
-        this.socket.on('user-joined', (user) => {
-            this.onlineUsers.set(user.id, user);
-            this.updateUserList();
-            this.showNotification(`👤 User ${user.id.substring(0, 8)} joined`);
-        });
-        
-        this.socket.on('user-left', (userId) => {
-            this.onlineUsers.delete(userId);
-            this.remoteCursors.delete(userId);
-            this.updateUserList();
-            this.showNotification(`👋 User ${userId.substring(0, 8)} left`);
-        });
-        
-        this.socket.on('draw', (data) => {
-            // Forward to drawing canvas
-            if (window.drawingCanvas && data.userId !== this.userId) {
-                window.drawingCanvas.drawRemote(data.stroke || data);
+        return stroke;
+    }
+    
+    getStrokes() {
+        return this.strokes.slice(); // Return copy
+    }
+    
+    clearCanvas() {
+        this.strokes = [];
+        console.log('Canvas cleared');
+    }
+    
+    undoLastStroke(userId) {
+        if (this.strokes.length > 0) {
+            const lastStroke = this.strokes.pop();
+            this.undoStack.push(lastStroke);
+            console.log(`Undo: Stroke ${lastStroke.id} removed`);
+            return lastStroke;
+        }
+        return null;
+    }
+    
+    redoLastStroke() {
+        if (this.undoStack.length > 0) {
+            const stroke = this.undoStack.pop();
+            this.strokes.push(stroke);
+            console.log(`Redo: Stroke ${stroke.id} restored`);
+            return stroke;
+        }
+        return null;
+    }
+    
+    // Get cursor data
+    getCursor(userId) {
+        return this.cursors.get(userId) || { x: 0, y: 0 };
+    }
+    
+    // Get all cursors
+    getAllCursors(excludeUserId = null) {
+        const cursors = [];
+        this.cursors.forEach((cursor, userId) => {
+            if (!excludeUserId || userId !== excludeUserId) {
+                cursors.push({
+                    userId: userId,
+                    cursor: cursor,
+                    color: this.userColors.get(userId) || '#000000'
+                });
             }
         });
-        
-        this.socket.on('cursor-update', (data) => {
-            // Update remote cursor position
-            if (window.drawingCanvas && data.userId !== this.userId) {
-                const user = this.onlineUsers.get(data.userId);
-                if (user) {
-                    window.drawingCanvas.updateCursor(data.userId, data.cursor, user.color);
-                }
-            }
-        });
+        return cursors;
     }
     
-    // Send drawing to server
-    sendDraw(stroke) {
-        if (this.socket && this.isConnected) {
-            this.socket.emit('draw', {
-                stroke: stroke,
-                timestamp: Date.now()
-            });
+    // Statistics
+    getStats() {
+        return {
+            totalUsers: this.users.size,
+            totalStrokes: this.strokes.length,
+            totalUndo: this.undoStack.length,
+            totalRedo: this.redoStack.length
+        };
+    }
+    
+    // Export/Import (for persistence)
+    exportState() {
+        return {
+            strokes: this.strokes,
+            users: Array.from(this.users.values()),
+            cursors: Array.from(this.cursors.entries()),
+            timestamp: Date.now()
+        };
+    }
+    
+    importState(state) {
+        if (state.strokes) this.strokes = state.strokes;
+        if (state.users) {
+            this.users = new Map(state.users.map(user => [user.id, user]));
         }
-    }
-    
-    // Send cursor position
-    sendCursorMove(position) {
-        if (this.socket && this.isConnected) {
-            this.socket.emit('cursor-move', position);
+        if (state.cursors) {
+            this.cursors = new Map(state.cursors);
         }
-    }
-    
-    // Update connection status UI
-    updateConnectionStatus(status) {
-        const element = document.getElementById('connection-status');
-        if (element) {
-            element.className = status;
-            
-            const texts = {
-                connecting: '🔗 Connecting...',
-                connected: '✅ Connected',
-                disconnected: '❌ Disconnected'
-            };
-            
-            element.textContent = texts[status] || status;
-        }
-        
-        // Update online count
-        const onlineCount = this.onlineUsers.size;
-        const countElement = document.getElementById('online-count');
-        if (countElement) {
-            countElement.textContent = onlineCount;
-        }
-    }
-    
-    // Update user list UI
-    updateUserList() {
-        const userList = document.getElementById('users-list');
-        if (!userList) return;
-        
-        userList.innerHTML = '';
-        
-        // Add local user
-        if (this.userId && this.userColor) {
-            const userItem = document.createElement('li');
-            userItem.className = 'user-item';
-            userItem.innerHTML = `
-                <div class="user-color" style="background-color: ${this.userColor}"></div>
-                <span class="user-name">You (${this.userId.substring(0, 8)})</span>
-            `;
-            userList.appendChild(userItem);
-        }
-        
-        // Add other users
-        this.onlineUsers.forEach((user, userId) => {
-            if (userId !== this.userId) {
-                const userItem = document.createElement('li');
-                userItem.className = 'user-item';
-                userItem.innerHTML = `
-                    <div class="user-color" style="background-color: ${user.color}"></div>
-                    <span class="user-name">User ${userId.substring(0, 8)}</span>
-                `;
-                userList.appendChild(userItem);
-            }
-        });
-    }
-    
-    // Show notification
-    showNotification(message) {
-        // Simple notification
-        console.log('📢', message);
-    }
-    
-    // Get user count
-    getUserCount() {
-        return this.onlineUsers.size;
+        console.log('State imported:', this.getStats());
     }
 }
 
-// Create global instance
-window.WebSocketClient = WebSocketClient;
+module.exports = DrawingState;
